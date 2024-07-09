@@ -11,11 +11,10 @@ model Product {
   id         Int       @id @default(autoincrement())
   title      String
   price      Float
-  category   String
   rating     Float
   image      String
-  Category   Category? @relation(fields: [categoryId], references: [id])
-  categoryId Int?
+  Category   Category  @relation(fields: [categoryId], references: [id])
+  categoryId Int
 }
 
 model Category {
