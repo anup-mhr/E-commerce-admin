@@ -29,7 +29,7 @@ Go to the project directory
   cd E-commerce-admin
 ```
 
-Install yarn
+Install yarn (yarn is compulsory)
 
 ```bash
   npm i -g yarn
@@ -41,10 +41,22 @@ Install dependencies
   npm run build
 ```
 
+Mitigrate database
+
+```bash
+  npm run db:setup
+```
+
+Convert ts files to js
+
+```bash
+  npm run build:typescript
+```
+
 Start the server
 
 ```bash
-  npm run dev
+  npm start
 ```
 
 Fetch and populate products:
