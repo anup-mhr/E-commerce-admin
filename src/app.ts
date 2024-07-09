@@ -1,37 +1,23 @@
-import { Database, Resource, getModelByName } from '@adminjs/prisma'
-import { PrismaClient } from '@prisma/client'
-import AdminJS from "adminjs";
-import AdminJSExpress from "@adminjs/express";
-import express from "express";
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
+import axios from 'axios';
+import {adminJs, adminRouter} from './admin.js';
 
-const PORT = 3000;
+const app = express();
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || 3000;
 
-const prisma = new PrismaClient()
-AdminJS.registerAdapter({ Database, Resource })
+app.use(express.json());
 
-const start = async () => {
-  const app = express();
-  const adminOptions = {
-    resources: [
-      {
-      resource: { model: getModelByName('Product'), client: prisma },
-      options: {},
-    },
-    {
-      resource: { model: getModelByName('Category'), client: prisma },
-      options: {},
-    }
-  ],
-  }
 
-  const admin = new AdminJS(adminOptions);
+app.use(adminJs.options.rootPath, adminRouter);
 
-  const adminRouter = AdminJSExpress.buildRouter(admin);
-  app.use(admin.options.rootPath, adminRouter);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`AdminJS started on http://localhost:${PORT}${adminJs.options.rootPath}`);
+});
 
-  app.listen(PORT, () => {
-    console.log(`AdminJS started on http://localhost:${PORT}${admin.options.rootPath}`);
-  });
-};
-
-start();
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit();
+});
