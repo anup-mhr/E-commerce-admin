@@ -5,6 +5,7 @@ import AdminJSExpress from "@adminjs/express";
 import Connect from "connect-pg-simple";
 import session from "express-session";
 import authenticate from "./utils/authenticate.js";
+import config from "./config/config.js";
 
 AdminJS.registerAdapter({ Database, Resource });
 const prisma = new PrismaClient();
@@ -42,7 +43,7 @@ const adminJs = new AdminJS(adminOptions);
 const ConnectSession = Connect(session);
 const sessionStore = new ConnectSession({
   conObject: {
-    connectionString: "postgres://postgres:postgres@localhost:5432/ecommerce",
+    connectionString: config.dbUrl,
     ssl: process.env.NODE_ENV === "production",
   },
   tableName: "session",
