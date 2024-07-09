@@ -2,6 +2,9 @@ import { Database, Resource, getModelByName } from "@adminjs/prisma";
 import { PrismaClient } from "@prisma/client";
 import AdminJS from "adminjs";
 import AdminJSExpress from "@adminjs/express";
+import Connect from "connect-pg-simple";
+import session from "express-session";
+import authenticate from "./utils/authenticate.js";
 
 AdminJS.registerAdapter({ Database, Resource });
 const prisma = new PrismaClient();
@@ -36,6 +39,35 @@ const adminOptions = {
 
 const adminJs = new AdminJS(adminOptions);
 
-const adminRouter = AdminJSExpress.buildRouter(adminJs);
+const ConnectSession = Connect(session);
+const sessionStore = new ConnectSession({
+  conObject: {
+    connectionString: "postgres://postgres:postgres@localhost:5432/ecommerce",
+    ssl: process.env.NODE_ENV === "production",
+  },
+  tableName: "session",
+  createTableIfMissing: true,
+});
+
+const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
+  adminJs,
+  {
+    authenticate,
+    cookieName: "adminjs",
+    cookiePassword: "sessionsecret",
+  },
+  null,
+  {
+    store: sessionStore,
+    resave: true,
+    saveUninitialized: true,
+    secret: "sessionsecret",
+    cookie: {
+      httpOnly: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production",
+    },
+    name: "adminjs",
+  },
+);
 
 export { adminJs, adminRouter };
